@@ -33,6 +33,32 @@ int isWin(std::string elveSuggestion, std::string mySuggestion) {
     return 0;
 }
 
+std::string matchElvesPlay(std::string elveSuggestion, std::string instruction) {
+    if (elveSuggestion == "A") {
+        if (instruction == "X") {
+            return "Z";
+        } else if (instruction == "Z") {
+            return "Y";
+        }
+        return "X";
+    } if (elveSuggestion == "B") {
+        if (instruction == "X") {
+            return "X";
+        } else if (instruction == "Y") {
+            return "Y";
+        }
+        return "Z";
+    } if (elveSuggestion == "C") {
+        if (instruction == "X") {
+            return "Y";
+        } else if (instruction == "Y") {
+            return "Z";
+        }
+        return "X";
+    }
+    return "Y";
+}
+
 int processRound(std::string elveSuggestion, std::string mySuggestion) {
     const int WIN = 6;
     const int DRAW = 3;
@@ -44,8 +70,9 @@ int processRound(std::string elveSuggestion, std::string mySuggestion) {
         {"Z", 3}
     };
     if (games.find(mySuggestion) != games.end()) {
-        int myScore = games.at(mySuggestion);
-        int win = isWin(elveSuggestion, mySuggestion);
+        std::string reinterpreteElfInstruction = matchElvesPlay(elveSuggestion, mySuggestion);
+        int myScore = games.at(reinterpreteElfInstruction);
+        int win = isWin(elveSuggestion, reinterpreteElfInstruction);
         if (win > 1) {
             return myScore + WIN;
         } else if (win > 0) {
