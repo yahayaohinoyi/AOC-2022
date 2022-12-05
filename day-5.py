@@ -11,7 +11,8 @@ def parseInput(filename):
                 makeStackDictionary([line[i] for i in range(1, len(line), 4)])
             elif a[0] == 'm':
                 move, _from, to = [int(s) for s in a.split() if s.isdigit()]
-                useInstruction(move, _from, to)
+                # useMoveInstruction(move, _from, to)
+                useMoveInstructionRetainOrder(move, _from, to)
             line = f.readline()
     f.close()
 
@@ -24,12 +25,21 @@ def makeStackDictionary(line):
                 _map[ind + 1].append(el)
         _max[0] = ind + 1
 
-def useInstruction(move, _from, to):
+def useMoveInstruction(move, _from, to):
     print(_map)
     while move > 0:
         if _from in _map and to in _map and len(_map[_from]) > 0:
             _map[to].insert(0, _map[_from].pop(0))
         move -= 1
+
+def useMoveInstructionRetainOrder(move, _from, to):
+    print(_map)
+    order = []
+    while move > 0:
+        if _from in _map and to in _map and len(_map[_from]) > 0:
+            order.append(_map[_from].pop(0))
+        move -= 1
+    _map[to] = order + _map[to]
 
 def extractResult():
     res, i = "", 1
