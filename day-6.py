@@ -25,16 +25,18 @@ def parseInput(filename):
 #                 _dict[el] = ind
 
 def getFirstStartOfPacket(buffer, n):
-    if len(buffer) < n:
-        return 0
-    i = n - 1
-    while i < len(buffer):
-        a = [buffer[i - n] for n in range(n)]
-        print(a)
-        if len(list(set(a))) == len(a):
-            return i
-        i += 1
-    return 0
+    Queue = []
+    for i in range(n - 1):
+        Queue.append(buffer[i])
+
+    for i in range((n - 1), len(buffer)):
+        Queue.append(buffer[i])
+        if isDistinct(Queue):
+            return i + 1
+        Queue.pop(0)
+
+def isDistinct(Queue):
+    return len(list(set(Queue))) == len(Queue)
 
 def main():
     filename = 'day-6.txt'
