@@ -10,17 +10,14 @@ def parseInput(filename, runner):
     with open(filename) as f:
         line = f.readline()
         while line:
-            if '$' in line or line[0] == '$':
+            if '$' in line:
                 CMD = line[2:4]
                 ARG = line[5:]
-                # print(CMD, ARG)
                 if CMD == 'cd':
                     if '..' in ARG:
                         runner = runner.parent
-                    elif '/' in ARG:
-                        line = f.readline()
-                        continue
-                    else:
+
+                    elif '/' not in ARG:
                         for node in runner.children:
                             if node.val == ARG.strip(' '):
                                 runner = node
@@ -28,7 +25,7 @@ def parseInput(filename, runner):
 
                 elif CMD == 'ls':
                     line = f.readline()
-                    while '$' not in line:
+                    while len(line) > 1 and '$' not in line:
                         a = line.split(' ')
                         if a[0] == 'dir':
                             runner.children.append(
@@ -50,26 +47,34 @@ def parseInput(filename, runner):
                                 )
                             )
                         line = f.readline()
-                        if len(line) <= 1:
-                            break
                     continue
             else:
-                assert(False, "CODEPATH shouldn't be hit")
-            
+                assert(False, "UNKNOWN TOKEN")
             line = f.readline()
 
 def getSumDirs(Tree, res = [0]):
     if Tree.children == None or Tree.children == []:
         return
     for i in range(len(Tree.children)):
-        size = Tree.children[i].size
-        if Tree.children[i].type == 'dir' and size < 100000:
-            res[0] += size
+        node = Tree.children[i]
+        if node.type == 'dir' and node.size < 100000:
+            res[0] += node.size
         getSumDirs(Tree.children[i], res)
 
+def smallestDirToFreeUpEnoughSpace(Tree, res, neededSpace):
+    if Tree.children == None or Tree.children == []:
+        return
+    for i in range(len(Tree.children)):
+        node = Tree.children[i]
+        if node.type == 'dir':
+            if node.size >= neededSpace:
+                res[0] = min(res[0], node.size)
+        smallestDirToFreeUpEnoughSpace(Tree.children[i], res, neededSpace)
+
 def makeSizeForTreeDirs(Tree):
-    if Tree.type == 'file':
+    if Tree.size > 0:
         return Tree.size
+
     if Tree.children == None or Tree.children == []:
         return 0
 
@@ -78,16 +83,32 @@ def makeSizeForTreeDirs(Tree):
         res += makeSizeForTreeDirs(Tree.children[i])
         if Tree.type == 'dir':
             Tree.size = res
-    return 0
+    return res
 
-def main():
+def day7():
+    # Create parser and initialize TreeNode
     filename = 'day-7.txt'
     Tree = FileNode('*')
+    Tree.type = 'dir'
     Root = Tree
-    parseInput(filename, Tree)
+    parseInput(filename, Root)
+
+    # Compute size for all Dirs
     makeSizeForTreeDirs(Root)
-    res = [0]
-    getSumDirs(Root, res)
-    # print(res)
+
+    # Get size sum of Dirs
+    sumOfDirs = [0]
+    getSumDirs(Root, sumOfDirs)
+    yield sumOfDirs[0]
+
+    # Get smallest Dirs needed to be deleted
+    neededSpace = 30000000 - (70000000 -  Root.size)
+    smallestDir = [float('inf')]
+    smallestDirToFreeUpEnoughSpace(Root, smallestDir, neededSpace)
+    yield smallestDir[0]
+
+def main():
+    for sol in day7():
+        print(sol)
 
 main()
