@@ -28,47 +28,24 @@ def canBeSeen(grid, i, j, x, y, ACTION):
     else:
         return canBeSeen(grid, i, j, x, y + 1, ACTION)
 
-def scoreForTree(grid, i, j):
-    scores = 1
-    count = 0
-    x, y = i, j
-    res = True
-    while i - 1 >= 0:
-        res = res and (grid[x][y] > grid[i - 1][j])
-        count += 1
-        if not res: break
-        i -= 1
-    scores *= max(count, 1)
-    count = 0
-    res = True
-    i, j = x, y
-    while i + 1 < len(grid):
-        res = res and (grid[x][y] > grid[i + 1][j])
-        count += 1
-        if not res: break
-        i += 1
-    scores *= max(count, 1)
+def scoreForDirection(grid, i, j, x, y, ACTION, score = 0):
+    if not isInBound(grid, x, y):
+        if (i == 0 and x < 0) or (j == 0 and y < 0) or ((i == len(grid) - 1) and x >= len(grid)) or ((j == len(grid) - 1) and y >= len(grid)):
+            return score
+        return score - 1
 
-    count = 0
-    res = True
-    i, j = x, y
-    while j - 1 >= 0:
-        res = res and (grid[x][y] > grid[i][j - 1])
-        count += 1
-        if not res: break
-        j -= 1
-    scores *= max(count, 1)
+    initialCondition = (i == x) and (j == y)
+    if not initialCondition and grid[i][j] <= grid[x][y]:
+        return score
 
-    count = 0
-    res = True
-    i, j = x, y
-    while j + 1 < len(grid[0]):
-        res = res and (grid[x][y] > grid[i][j + 1])
-        count += 1
-        if not res: break
-        j += 1
-    scores *= max(count, 1)
-    return scores
+    if ACTION == "RIGHT":
+        return scoreForDirection(grid, i, j, x + 1, y, ACTION, score + 1)
+    elif ACTION == "LEFT":
+        return scoreForDirection(grid, i, j, x - 1, y, ACTION, score + 1)
+    elif ACTION == "UP":
+        return scoreForDirection(grid, i, j, x, y - 1, ACTION, score + 1)
+    else:
+        return scoreForDirection(grid, i, j, x, y + 1, ACTION, score + 1)
 
 def computeNumberOfVisibleTrees(grid):
     count = len(grid) * 2 + (len(grid[0]) - 2) * 2
@@ -88,10 +65,19 @@ def computeNumberOfVisibleTrees(grid):
     return count
 
 def computeMaxScenicScore(grid):
+    DIRECTIONS = ["UP", "DOWN", "LEFT", "RIGHT"]
     _max = float('-inf')
+
+    def getScenicScore(grid, i, j):
+        score = 1
+        for dir in DIRECTIONS:
+            raw = scoreForDirection(grid, i, j, i, j, dir)
+            score *= raw
+        return score
+
     for i in range(len(grid)):
         for j in range(len(grid[0])):
-            score = scoreForTree(grid, i, j)
+            score = getScenicScore(grid, i, j)
             _max = max(_max, score)
     return _max
 
