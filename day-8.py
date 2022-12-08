@@ -8,9 +8,7 @@ def parseInput(filename):
     f.close()
     return lines
 
-def inBound(grid, i, j):
-    return 0 <= i < len(grid) and 0 <= j <= len(grid[0])
-
+def canBeSeen(grid, i, j):
     x, y = i, j
     res = True
     while i - 1 >= 0:
