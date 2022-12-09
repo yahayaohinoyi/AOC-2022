@@ -1,84 +1,47 @@
 from collections import defaultdict
 tPositionToOcc = defaultdict(int)
-posForTwoKnots = [[0, 0], [0, 0]]
-tPositionToOcc[(posForTwoKnots[0][0], posForTwoKnots[0][0])] = 1
-# posForTenKnots = [[0, 0] for _ in range(10)]
+posForKnots = [{'x': 0, 'y': 0} for _ in range(10)]
 
 def parseInput(filename):
     with open(filename) as f:
         line = f.readline()
         while line:
-            ind = len(posForTwoKnots) - 1
-            while ind > 0:
-                simulateRopeForTwoKnots(line, posForTwoKnots[ind], posForTwoKnots[ind - 1])
-                ind -= 1
+            simulateRopeMotion(line)
             line = f.readline()
 
-def simulateRopeForTwoKnots(line, hp, tp):
-    def tailDivergeFromHead(hp, tp):
-        for x, y in [(1, 1), (1, -1), (-1, 1), (-1, -1), (0, 1), (0, -1), (1, 0), (-1, 0), (0, 0)]:
-            if tp[0] + x == hp[0] and tp[1] + y == hp[1]:
-                return False
+def simulateRopeMotion(line):
+    def makeFollowerKnots(ind):
+        f, s = ind - 1, ind
+        dx = posForKnots[f]['x'] - posForKnots[s]['x']
+        dy = posForKnots[f]['y'] - posForKnots[s]['y']
 
-        return True
+        if abs(dx) <= 1 and abs(dy) <= 1:
+            return
+
+        if dx > 0:
+            posForKnots[s]['x'] += 1
+        elif dx < 0:
+            posForKnots[s]['x'] -= 1
+
+        if dy > 0:
+            posForKnots[s]['y'] += 1
+        elif dy < 0:
+            posForKnots[s]['y'] -= 1
 
     dir, mag = line.split(' ')
-    if dir == 'R':
-        for _ in range(int(mag)):
-            hp[0] += 1
-            if not tailDivergeFromHead(hp, tp):
-                pass
+    for _ in range(int(mag)):
+        if dir == 'U':
+            posForKnots[0]['y'] += 1
+        elif dir == 'D':
+            posForKnots[0]['y'] -= 1
+        elif dir == 'L':
+            posForKnots[0]['x'] -= 1
+        elif dir == 'R':
+            posForKnots[0]['x'] += 1
 
-            if hp[1] == tp[1] and abs(hp[0] - tp[0]) > 1:
-                tp[0] = hp[0] - 1 if hp[0] > tp[0] else hp[0] + 1
-
-            elif abs(hp[1] - tp[1]) >= 1 and tailDivergeFromHead(hp, tp):
-                tp[1] = hp[1]
-                tp[0] = hp[0] - 1 if hp[0] > tp[0] else hp[0] + 1
-            tPositionToOcc[(posForTwoKnots[0][0], posForTwoKnots[0][1])] += 1
-            
-    elif dir == 'L':
-        for _ in range(int(mag)):
-            hp[0] -= 1
-
-            if not tailDivergeFromHead(hp, tp):
-                pass
-
-            if hp[1] == tp[1] and abs(hp[0] - tp[0]) > 1:
-                tp[0] = hp[0] - 1 if hp[0] > tp[0] else hp[0] + 1
-
-            elif abs(hp[1] - tp[1]) >= 1 and tailDivergeFromHead(hp, tp):
-                tp[1] = hp[1]
-                tp[0] = hp[0] - 1 if hp[0] > tp[0] else hp[0] + 1
-            tPositionToOcc[(posForTwoKnots[0][0], posForTwoKnots[0][1])] += 1
-
-    elif dir == 'U':
-        for _ in range(int(mag)):
-            hp[1] += 1
-            if not tailDivergeFromHead(hp, tp):
-                pass
-
-            if hp[0] == tp[0] and abs(hp[1] - tp[1]) > 1:
-                tp[1] = hp[1] - 1 if hp[1] > tp[1] else hp[1] + 1
-
-            elif abs(hp[0] - tp[0]) >= 1 and tailDivergeFromHead(hp, tp):
-                tp[0] = hp[0]
-                tp[1] = hp[1] - 1 if hp[1] > tp[1] else hp[1] -+1
-            tPositionToOcc[(posForTwoKnots[0][0], posForTwoKnots[0][1])] += 1
-
-    elif dir == 'D':
-        for _ in range(int(mag)):
-            hp[1] -= 1
-            if not tailDivergeFromHead(hp, tp):
-                pass
-
-            if hp[0] == tp[0] and abs(hp[1] - tp[1]) > 1:
-                tp[1] = hp[1] - 1 if hp[1] > tp[1] else hp[1] + 1
-
-            elif abs(hp[0] - tp[0]) >= 1 and tailDivergeFromHead(hp, tp):
-                tp[0] = hp[0]
-                tp[1] = hp[1] - 1 if hp[1] > tp[1] else hp[1] + 1
-            tPositionToOcc[(posForTwoKnots[0][0], posForTwoKnots[0][1])] += 1
+        for ind in range(1, len(posForKnots)):
+            makeFollowerKnots(ind)
+        tPositionToOcc[(posForKnots[len(posForKnots) - 1]['x'], posForKnots[len(posForKnots) - 1]['y'])] += 1
 
 def numberOfTailVisits():
     return len(tPositionToOcc.keys())
