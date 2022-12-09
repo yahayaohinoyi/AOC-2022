@@ -1,17 +1,20 @@
 from collections import defaultdict
 tPositionToOcc = defaultdict(int)
-hp = [0, 0]
-tp = [0, 0]
-tPositionToOcc[(tp[0], tp[1])] = 1
+posForTwoKnots = [[0, 0], [0, 0]]
+tPositionToOcc[(posForTwoKnots[0][0], posForTwoKnots[0][0])] = 1
+# posForTenKnots = [[0, 0] for _ in range(10)]
 
 def parseInput(filename):
     with open(filename) as f:
         line = f.readline()
         while line:
-            simulateRope(line)
+            ind = len(posForTwoKnots) - 1
+            while ind > 0:
+                simulateRopeForTwoKnots(line, posForTwoKnots[ind], posForTwoKnots[ind - 1])
+                ind -= 1
             line = f.readline()
 
-def simulateRope(line):
+def simulateRopeForTwoKnots(line, hp, tp):
     def tailDivergeFromHead(hp, tp):
         for x, y in [(1, 1), (1, -1), (-1, 1), (-1, -1), (0, 1), (0, -1), (1, 0), (-1, 0), (0, 0)]:
             if tp[0] + x == hp[0] and tp[1] + y == hp[1]:
@@ -32,7 +35,7 @@ def simulateRope(line):
             elif abs(hp[1] - tp[1]) >= 1 and tailDivergeFromHead(hp, tp):
                 tp[1] = hp[1]
                 tp[0] = hp[0] - 1 if hp[0] > tp[0] else hp[0] + 1
-            tPositionToOcc[(tp[0], tp[1])] += 1
+            tPositionToOcc[(posForTwoKnots[0][0], posForTwoKnots[0][1])] += 1
             
     elif dir == 'L':
         for _ in range(int(mag)):
@@ -47,7 +50,7 @@ def simulateRope(line):
             elif abs(hp[1] - tp[1]) >= 1 and tailDivergeFromHead(hp, tp):
                 tp[1] = hp[1]
                 tp[0] = hp[0] - 1 if hp[0] > tp[0] else hp[0] + 1
-            tPositionToOcc[(tp[0], tp[1])] += 1
+            tPositionToOcc[(posForTwoKnots[0][0], posForTwoKnots[0][1])] += 1
 
     elif dir == 'U':
         for _ in range(int(mag)):
@@ -61,7 +64,7 @@ def simulateRope(line):
             elif abs(hp[0] - tp[0]) >= 1 and tailDivergeFromHead(hp, tp):
                 tp[0] = hp[0]
                 tp[1] = hp[1] - 1 if hp[1] > tp[1] else hp[1] -+1
-            tPositionToOcc[(tp[0], tp[1])] += 1
+            tPositionToOcc[(posForTwoKnots[0][0], posForTwoKnots[0][1])] += 1
 
     elif dir == 'D':
         for _ in range(int(mag)):
@@ -75,7 +78,7 @@ def simulateRope(line):
             elif abs(hp[0] - tp[0]) >= 1 and tailDivergeFromHead(hp, tp):
                 tp[0] = hp[0]
                 tp[1] = hp[1] - 1 if hp[1] > tp[1] else hp[1] + 1
-            tPositionToOcc[(tp[0], tp[1])] += 1
+            tPositionToOcc[(posForTwoKnots[0][0], posForTwoKnots[0][1])] += 1
 
 def numberOfTailVisits():
     return len(tPositionToOcc.keys())
