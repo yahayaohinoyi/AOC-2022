@@ -10,7 +10,14 @@ class MonkeyNode():
 
 monkeysToItems = defaultdict(list)
 monkeysToInspection = defaultdict(int)
-NUM_ROUNDS = 20
+# section 1
+# NUM_ROUNDS = 20
+NUM_ROUNDS = 10000
+def lcm():
+    mod = 1
+    for i in monkeysToItems.keys():
+        mod *= int(monkeysToItems[i][1].test)
+    return mod
 
 def parseInput(filename):
     with open(filename) as f:
@@ -55,6 +62,7 @@ def parseInput(filename):
         
 def simulateMonkeyInTheMiddle():
     global NUM_ROUNDS
+    _lcm = lcm()
     for _ in range(NUM_ROUNDS):
         i = 0
         while str(i) in monkeysToItems:
@@ -80,7 +88,9 @@ def simulateMonkeyInTheMiddle():
                         worryLevel = worryLevel**2
                     elif r.isdigit():
                         worryLevel *= int(r)
-                worryLevel //= 3
+                # section - 1
+                # worryLevel //= 3
+                worryLevel = worryLevel % _lcm
                 if (worryLevel % int(test) == 0):
                     monkeysToItems[truth][0].append(worryLevel)
                 else:
