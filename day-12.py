@@ -9,13 +9,23 @@ def parseInput(filename):
     f.close()
     return lines
 
-def findStartPos(grid):
+def findStartPos(grid, visited):
     for i in range(len(grid)):
         for j in range(len(grid[0])):
             if grid[i][j] == 'S':
-                return [i, j]
+                visited[(i, j)] = 1
+                return [(i, j)]
 
     assert (False, "No start position found")
+
+def findPossibleStartPos(grid, visited):
+    res = []
+    for i in range(len(grid)):
+        for j in range(len(grid[0])):
+            if grid[i][j] == 'a':
+                visited[(i, j)] = 1
+                res.append((i, j))
+    return res
 
 def inBound(grid, i, j):
     return 0 <= i < len(grid) and 0 <= j < len(grid[0])
@@ -25,11 +35,8 @@ def isMinimumElevation(grid, i, j, x, y):
     h = ord(grid[x][y]) if grid[x][y] != 'E' else ord('z')
     return l - h >= -1
 
-def getFewestStepsToReachHill(grid, i = 0, j = 0, visited = {}):
-    Queue = []
+def getFewestStepsToReachHill(grid, Queue = [], visited = {}):
     dirs = [(0, 1), (0, -1), (1, 0), (-1, 0)]
-    Queue.append((i, j))
-    visited[(i, j)] = 1
     res = 0
 
     while Queue:
@@ -47,10 +54,22 @@ def getFewestStepsToReachHill(grid, i = 0, j = 0, visited = {}):
         res += 1
     return res
 
-def main():
+def day12():
     lines = parseInput('day-12.txt')
-    x, y = findStartPos(lines)
-    res = getFewestStepsToReachHill(lines, x, y, {})
-    print(res)
+    Queue = []
+    visited = {}
+
+    #part 1
+    Queue = findStartPos(lines, visited)
+    yield getFewestStepsToReachHill(lines, Queue, visited)
+
+    #part 2
+    Queue, visited = [] , {}
+    Queue += findPossibleStartPos(lines, visited)
+    yield getFewestStepsToReachHill(lines, Queue, visited)
+
+def main():
+    for sol in day12():
+        print(sol)
 
 main()
