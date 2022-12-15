@@ -56,10 +56,24 @@ def countOrderedPackets(lines):
         i += 2
     return count
 
+def getDriverPacketIndexes(lines):
+    DRIVER_PACKETS = [[[2]], [[6]]]
+    packet_pos = []
+    for packet in DRIVER_PACKETS:
+        ind = 0
+        for line in lines:
+            if isLessThan(line, packet) == 1:
+                ind += 1
+        packet_pos.append(ind)
+    return packet_pos
+
 def day13():
     filename = 'day-13.txt'
     lines = parseInput(filename)
     yield countOrderedPackets(lines)
+    res = getDriverPacketIndexes(lines)
+    assert len(res) == 2
+    yield (res[0] + 1)*(res[1] + 2)
 
 def main():
     for sol in day13():
